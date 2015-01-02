@@ -1,0 +1,103 @@
+h1
+{
+	text-align:center;
+}
+
+.U_P
+{
+	font-style: bold;
+	font-size:20px;
+}
+
+#login
+{
+	
+}
+
+#events
+{
+	max-width: 750px;
+	height: 345px;
+	display: block;
+	overflow: auto;
+}
+
+#calendar_popup
+{
+	display: none;
+    position: absolute;
+    width: 400px;
+    padding: 8px;
+    border: 2px solid #4D4F53;
+    margin: 5px;
+    z-index: 999999;
+    background: #ffffff;
+}
+
+#form_header
+{
+	font-style: bold;
+	font-size: 20px;
+}
+
+#X
+{
+	float:right;
+}
+
+.popup_form
+{
+}
+
+.popup_desc
+{
+}
+
+#event_add
+{
+}
+#form_header
+{
+	margin-bottom: 10px;
+}
+
+#title
+{
+	width: 220px;
+}
+
+#start
+{
+	width: 100px;
+}
+
+#end
+{
+	width: 100px;
+}
+
+#description
+{
+	text-align:left;
+	width: 300px;
+	height: 100px;
+	padding-left: 0px;
+	padding-top: 0px;
+	padding-bottom: 0.4em;
+	padding-right: 0.4em;
+}
+
+#event_add_div
+{
+	text-align:center;
+}
+
+#calendar_popup.input
+{
+	margin: 10px;
+}
+
+#calendar_popup.label
+{
+	
+}
