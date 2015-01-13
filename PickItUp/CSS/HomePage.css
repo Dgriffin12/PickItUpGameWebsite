@@ -2,7 +2,17 @@ h1
 {
 	text-align:center;
 }
-
+h2
+{
+	text-align:left;
+}
+h3
+{
+	font-family: times, Times New Roman, times-roman, georgia, serif;
+	text-decoration: underline;
+	font-size: 30px;
+	text-align:left;
+}
 .U_P
 {
 	font-style: bold;
@@ -100,4 +110,14 @@ h1
 #calendar_popup.label
 {
 	
+}
+
+.calendar_button
+{
+	text-align: center;
+	font-style: bold;
+	font-size: 20%;
+	width: 150px;
+	height:10px;
+	z-index: 999999;
 }

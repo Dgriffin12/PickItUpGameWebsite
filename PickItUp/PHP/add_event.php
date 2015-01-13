@@ -58,7 +58,23 @@
 	if(strlen($secs) == 1)
 		$secs = '0' . $secs;
 	$duration = $hours . ':' . $mins . ':' . $secs;
-	$result1 = mysqli_query($con, 'INSERT INTO events (title,description,time,date, duration, username, end_time) VALUES ("' . $title . '", "' . $desc . '", "' . $start_time . '", "' . $date . '", "' . $duration . '", "' . $user . '", "' . $end_time . '")');
+	$result1 = mysqli_query($con, 'INSERT INTO events (title,description,time,date, duration, username, end_time, attending) VALUES ("' . $title . '", "' . $desc . '", "' . $start_time . '", "' . $date . '", "' . $duration . '", "' . $user . '", "' . $end_time . '", "' . 1 . '")');
+	$result2 = mysqli_query($con, 'SELECT events_attended FROM users WHERE username LIKE "' . $user . '"');
+	if($result2)
+	{
+		$row2 = mysqli_fetch_assoc($result2);
+		if($row2 && $row2['events_attended'] !== '' && $row2['events_attended'] !== NULL)
+		{
+			$result3 = mysqli_query($con, 'UPDATE users SET events_attended = "' . $row2['events_attended'] . '|' . $title . '|' . $date . '" WHERE username LIKE "' . $user . '"');
+		}else
+		{
+			$result3 = mysqli_query($con, 'UPDATE users SET events_attended = "' . $title . '|' . $date . '" WHERE username LIKE "' . $user . '"');
+		}
+		
+	}else
+	{
+		$result3 = mysqli_query($con, 'UPDATE users SET events_attended = "' . $title . '|' . $date . '" WHERE username LIKE "' . $user . '"');
+	}
 	
 	if($result1)
 	{

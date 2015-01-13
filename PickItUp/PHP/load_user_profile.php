@@ -12,7 +12,25 @@
 	{
 		$long_string .= ($row['title'] . ' on ' . $row['date'] . ' at ' . $row['time'] . '<br>');
 	}
+	$long_string .= ("<br><p class = 'U_P'>Events I'm Attending</p>");
+	$result_attending = mysqli_query($con, 'SELECT events_attended FROM users WHERE username LIKE "' . $username . '"');
 	
+	if($result_attending && (mysqli_num_rows($result_attending) > 0))
+	{
+		$row_attending = mysqli_fetch_assoc($result_attending);
+		if($row_attending)
+		{
+			$parse_this = ($row_attending['events_attended']);
+			$parse_this = ((string)$parse_this);
+			$parsed = explode("|", $parse_this);
+			
+			for($i = 0; $i < count($parsed); $i++)
+			{
+				if($i % 2 == 0)
+					$long_string .= ($parsed[$i] . ', ');
+			}
+		}
+	}
 	$result2 = mysqli_query($con, 'SELECT * FROM events');
 	if($result2)
 	{

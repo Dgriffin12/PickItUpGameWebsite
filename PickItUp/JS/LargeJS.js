@@ -55,21 +55,27 @@ function login(user, pass)
 				if($("#calendar").html() == "")
 				{
 					$("#calendar").fullCalendar({
+						eventClick: function(calEvent, jsEvent, view) {
+							var title = calEvent.title;
+							var start = calEvent.start;
+							var end = calEvent.end;
+							var mysql_date_event = convert_calendar_date_to_mysql_date(start);
+							showEvent(title, mysql_date_event, false);
+						},
 						dayClick: function(date, jsEvent, view){
-						clear_popup_form();
-						date = date.toDate();
-						var year = String(date.getFullYear());
-						var month = String(date.getMonth()+1);
-						if(month.length == 1)
-							month = '0' + month;
-						var day = String(date.getDate());
-						if(day.length == 1)
-							day = '0' + day;
-						var mysql_date = year + '-' + month + '-' + day;
-			
-						show_popup(jsEvent, mysql_date); //displays popup form on mouse.
+							if(!$(jsEvent.target).is(".calendar_button"))
+							{
+								clear_popup_form();
+								var mysql_date = convert_calendar_date_to_mysql_date(date);
+								show_popup(jsEvent, mysql_date); //displays popup form on mouse.
+							}else
+							{
+								show_all_events(convert_calendar_date_to_mysql_date(date));
+							}
 						}
 					});
+					
+					$(".fc-day-number").prepend("<button class = 'calendar_button'> Show All Events</button>");
 				}else
 				{
 					$("#calendar").show();
@@ -106,7 +112,7 @@ function logout()
 			{
 				logged_in = false;
 				$("#login").html("<p class = 'U_P'>Username:</p> <input id = 'username' type = 'text' value = ''>");
-				$("#login").append("<p class = 'U_P'>Password:</p> <input id = 'password' type = 'text' value = ''>")
+				$("#login").append("<p class = 'U_P'>Password:</p> <input id = 'password' type = 'text' value = ''>");
 				$("#login").append("<p> <button id = 'submit_login' class = 'U_P' onclick = 'login(\"\",\"\")'>Login</button> </p>");
 				$("#notify").css("color", "green");
 				$("#notify").html("Sucessfully Logged out.");
@@ -137,7 +143,7 @@ function load_user_profile(username)
 			$("#calendar").fullCalendar('removeEvents');
 			if(data_array.length > 1)
 			{
-				for(var i = 1; i < data_array.length; i++)
+				for(var i = 0; i < data_array.length; i++)
 				{
 					var new_Event = new Object();
 					new_Event.title = data_array[1][i];
@@ -213,6 +219,7 @@ function add_event(date)
 	var description = $("#description").val();
 	var start = $("#start").val();
 	var end = $("#end").val();
+	//alert(date);
 	$.ajax({
 		method: 'get',
 		url: '../PHP/add_event.php',
@@ -239,7 +246,7 @@ function add_event(date)
 			}else
 			{
 				$("#popup_notify").css("color", "red").html("Invalid Data Entered.");
-				$("#temp_results").append("Data: <br> Title: " + title + "<br> Description: " + description + "<br> Start Time: " + start + "<br> End Time: " + end + "<br> Username: " + global_username + "<br> Date: " + date);
+				//$("#temp_results").append("Data: <br> Title: " + title + "<br> Description: " + description + "<br> Start Time: " + start + "<br> End Time: " + end + "<br> Username: " + global_username + "<br> Date: " + date);
 			}
 			
 		}
@@ -252,6 +259,7 @@ function add_event(date)
 function show_popup(e, date)
 {
 	$("#calendar_popup").css({left: e.pageX + 20, top: e.pageY + 20}).show();
+	$("#event_add").unbind("click");
 	$("#event_add").click(function(){
 		add_event(date);
 	});
@@ -267,4 +275,139 @@ function clear_popup_form()
 {
 	$("#calendar_popup").children("div").children("input").val("");
 	$("#calendar_popup").children("div").children("textarea").val("");
+}
+
+//Show all events for a day
+function show_all_events(date)
+{
+	$.ajax({
+		method: 'get',
+		url: '../PHP/show_all_events.php',
+		data: {
+			'date' : date,
+			'user' : global_username
+		},
+		success: function(data)
+		{
+			$("#events").html("<button id = 'back_to_calendar' onclick = 'cookie_login()'>Back to Calendar</button><br>");
+			$("#events").append(data);
+		}
+			
+	});
+}
+
+//show event details of the event that the user clicked on
+function showEvent(title, date, fromAll)
+{
+	hide_popup();
+	$.ajax({
+		method: 'get',
+		url: '../PHP/fetch_event_info.php',
+		data:{
+			'title' : title,
+			'date' : date,
+			'user' : global_username,
+			'fromAll' : fromAll
+		},
+		success: function(data){
+			$("#events").html("");
+			$("#events").html("<button id = 'back_to_calendar' onclick = 'cookie_login()'>Back to Calendar</button><br>");
+			if(fromAll)
+			{
+				//$("#temp_results").html(date);
+				$("#events").append("<button id = 'back_to_all' onclick = 'show_all_events(\"" + date + "\")'>Back to " + date + "'s Events</button>");
+			}
+			$("#events").append(data);
+		}
+	});
+
+}
+
+function convert_calendar_date_to_mysql_date(date)
+{
+	date_array = String(date).split(' ');
+	var year = String(date_array[3]);
+	month_string = date_array[1];
+	var month_str;
+	if(month_string == 'Jan')
+	{
+		month_str = '01';
+	}else if(month_string == 'Feb')
+	{
+		month_str = '02';
+	}else if(month_string == 'Mar')
+	{
+		month_str = '03';
+	}else if(month_string == 'Apr')
+	{
+		month_str = '04';
+	}else if(month_string == 'May')
+	{
+		month_str = '05';
+	}else if(month_string == 'Jun')
+	{
+		month_str = '06';
+	}else if(month_string == 'Jul')
+	{
+		month_str = '07';
+	}else if(month_string == 'Aug')
+	{
+		month_str = '08';
+	}else if(month_string == 'Sep')
+	{
+		month_str = '09';
+	}else if(month_string == 'Oct')
+	{
+		month_str = '10';
+	}else if(month_string == 'Nov')
+	{
+		month_str = '11';
+	}else if(month_string == 'Dec')
+	{
+		month_str = '12';
+	}
+	var month = String(month_str);
+	if(month.length == 1)
+		month = '0' + month;
+	var day = String(date_array[2]);
+	if(day.length == 1)
+		day = '0' + day;
+	var mysql_date = year + '-' + month + '-' + day;
+	return mysql_date;
+}
+
+function attend(title, date, fromAll)
+{
+	var title_pipe_date = title + "|" + date;
+	$.ajax({
+		method: 'get',
+		url: '../PHP/attend.php',
+		data:
+		{
+			"string" : title_pipe_date,
+			"user" : global_username
+		},
+		success: function(data)
+		{
+			showEvent(title, date, fromAll);
+		}
+	});
+}
+
+function unattend(title, date, fromAll)
+{
+	var title_pipe_date = title + "|" + date;
+	$.ajax({
+		method: 'get',
+		url: '../PHP/unattend.php',
+		data:
+		{
+			"string" : title_pipe_date,
+			"user" : global_username
+		},
+		success: function(data)
+		{
+			showEvent(title, date, fromAll);
+		}
+	});
 }
